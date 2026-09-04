@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "b5c909fe-35cd-45c6-961e-544467762efa"
+      }
+    },
+    "android": {
+      "package": "com.oiramxpo.finanzastareasweb"
+    }
+  }
+}

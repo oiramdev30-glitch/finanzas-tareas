@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Finanzas y Tareas",
+    "slug": "finanzas-tareas",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "finanzastareas",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0a0a0c",
+    "android": {
+      "package": "com.megad.finanzastareas",
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "INTERNET"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#8b7cf7"
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "dd8c6cec-3d00-40f9-87ea-88975a4c8b04"
+      }
+    },
+    "owner": "oiramxpo"
+  }
+}
