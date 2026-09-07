@@ -6,6 +6,7 @@ import * as Notifications from 'expo-notifications';
 import { LinearGradient } from 'expo-linear-gradient';
 import { palette } from '../theme/colors';
 import '../lib/push';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function RootLayout() {
   useEffect(() => {
@@ -21,20 +22,22 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.root}>
-        <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-        <LinearGradient
-          colors={[palette.backgroundTop, palette.backgroundBottom]}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-      </View>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <View style={styles.root}>
+          <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+          <LinearGradient
+            colors={[palette.backgroundTop, palette.backgroundBottom]}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </View>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
 
