@@ -6,6 +6,7 @@ import NavBar from './NavBar';
 import ErrorBanner from './ErrorBanner';
 import { startReminderScheduler } from '@/lib/reminderScheduler';
 import { useReminderStore } from '@/stores/useReminderStore';
+import { isSupabaseConfigured } from '@/lib/config';
 import { fadeIn } from '@/lib/motion';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -15,9 +16,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-2xl flex-col">
+    <div className="relative mx-auto flex min-h-screen max-w-2xl flex-col overflow-x-clip">
       <AuroraBackground />
       <ErrorBanner />
+      {!isSupabaseConfigured ? (
+        <div className="relative z-20 mx-5 mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[13px] leading-5 text-amber-200">
+          Faltan las variables de entorno en Vercel. Configura <span className="font-mono">NEXT_PUBLIC_SUPABASE_URL</span> y{' '}
+          <span className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</span> y redeploya.
+        </div>
+      ) : null}
       <motion.main
         key="main"
         initial="hidden"

@@ -7,3 +7,7 @@ export const config = {
   supabaseUrl: env('NEXT_PUBLIC_SUPABASE_URL', 'https://placeholder.supabase.co'),
   supabaseAnonKey: env('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'placeholder-anon-key'),
 } as const;
+
+export const isSupabaseConfigured =
+  config.supabaseUrl !== 'https://placeholder.supabase.co' &&
+  config.supabaseAnonKey !== 'placeholder-anon-key';

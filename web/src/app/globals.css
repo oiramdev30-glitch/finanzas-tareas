@@ -6,9 +6,17 @@
   color-scheme: dark;
 }
 
+html {
+  overflow-x: clip;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
+}
+
 html,
 body {
   min-height: 100%;
+  max-width: 100%;
 }
 
 body {
@@ -17,7 +25,16 @@ body {
   color: #f2f3f7;
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  position: relative;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px !important;
 }
 
 /* ---------- Aurora background ---------- */

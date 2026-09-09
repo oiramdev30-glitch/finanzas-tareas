@@ -11,9 +11,17 @@ export function friendlyDbError(error: unknown, duplicateMessage: string): strin
 
 export function toErrorMessage(error: unknown, fallback = 'Ocurrió un error inesperado.'): string {
   if (typeof error === 'string' && error.length > 0) {
+    const lower = error.toLowerCase();
+    if (lower.includes('failed to fetch') || lower.includes('networkerror') || lower.includes('fetch failed')) {
+      return 'Sin conexión. Verifica tu internet e intenta de nuevo.';
+    }
     return error;
   }
   if (error instanceof Error && error.message) {
+    const lower = error.message.toLowerCase();
+    if (lower.includes('failed to fetch') || lower.includes('networkerror') || lower.includes('fetch failed')) {
+      return 'Sin conexión. Verifica tu internet e intenta de nuevo.';
+    }
     return error.message;
   }
   if (typeof error === 'object' && error !== null) {
