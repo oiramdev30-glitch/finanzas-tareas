@@ -1,4 +1,9 @@
+function env(name: string, fallback = ''): string {
+  const v = process.env[name];
+  return v && v.length > 0 ? v : fallback;
+}
+
 export const config = {
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  supabaseUrl: env('NEXT_PUBLIC_SUPABASE_URL', 'https://placeholder.supabase.co'),
+  supabaseAnonKey: env('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'placeholder-anon-key'),
 } as const;
