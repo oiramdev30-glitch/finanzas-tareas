@@ -3,13 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Home, Wallet, ListChecks, Settings } from 'lucide-react';
+import { BellRing, Home, Wallet } from 'lucide-react';
 
 const TABS = [
   { href: '/', label: 'Inicio', icon: Home },
   { href: '/finanzas', label: 'Finanzas', icon: Wallet },
-  { href: '/tareas', label: 'Tareas', icon: ListChecks },
-  { href: '/config', label: 'Ajustes', icon: Settings },
+  { href: '/config', label: 'Recordatorios', icon: BellRing },
 ];
 
 export default function NavBar() {
@@ -21,7 +20,7 @@ export default function NavBar() {
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 22, delay: 0.1 }}
-        className="glass-strong grid grid-cols-4 items-center overflow-x-hidden rounded-[28px] px-2 py-2"
+        className="glass-strong grid grid-cols-3 items-center overflow-x-hidden rounded-[28px] px-2 py-2"
       >
         {TABS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
