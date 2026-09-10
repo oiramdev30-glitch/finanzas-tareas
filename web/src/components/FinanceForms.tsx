@@ -62,10 +62,10 @@ function Modal({ open, onClose, title, children }: {
 }
 
 const inputClass =
-  'w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-[15px] text-textPrimary placeholder:text-textTertiary outline-none focus:border-accent transition-all focus:ring-2 focus:ring-accent/25';
+  'w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-[16px] text-textPrimary placeholder:text-textTertiary outline-none focus:border-accent transition-all focus:ring-2 focus:ring-accent/25';
 
 const inputErrorClass =
-  'w-full rounded-2xl border border-danger bg-danger/[0.08] px-4 py-3 text-[15px] text-textPrimary placeholder:text-textTertiary outline-none focus:border-danger transition-all focus:ring-2 focus:ring-danger/25';
+  'w-full rounded-2xl border border-danger bg-danger/[0.08] px-4 py-3 text-[16px] text-textPrimary placeholder:text-textTertiary outline-none focus:border-danger transition-all focus:ring-2 focus:ring-danger/25';
 
 function FieldError({ message }: { message: string | null }) {
   if (!message) return null;
@@ -118,7 +118,7 @@ function SelectField({ value, onChange, options, placeholder }: {
         aria-expanded={open}
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
-        className={`w-full rounded-2xl border bg-white/[0.07] px-4 py-3 text-left text-[15px] outline-none transition-all ${
+        className={`w-full rounded-2xl border bg-white/[0.07] px-4 py-3 text-left text-[16px] outline-none transition-all ${
           focus ? 'border-accent ring-2 ring-accent/25' : 'border-white/15'
         } ${selected ? 'text-textPrimary' : 'text-textTertiary'}`}
       >
