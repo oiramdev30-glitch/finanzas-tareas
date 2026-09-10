@@ -139,10 +139,10 @@ export default function FinanzasPage() {
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="flex flex-col gap-6 overflow-x-hidden">
       <motion.div variants={fadeUp} className="flex flex-col gap-3">
         <h1 className="text-[28px] font-bold tracking-wide text-textPrimary">Finanzas</h1>
-        <div className="grid grid-cols-3 gap-2">
-          <GlassButton title="Cuenta" variant="secondary" size="sm" icon={Wallet} onClick={() => setShowAccountModal(true)} />
-          <GlassButton title="Gasto" variant="secondary" size="sm" icon={Plus} onClick={() => setShowTransactionModal(true)} />
-          <GlassButton title="Transferir" variant="secondary" size="sm" icon={Repeat} onClick={() => setShowTransferModal(true)} />
+        <div className="grid grid-cols-3 gap-1.5 p-1">
+          <GlassButton title="Cuenta" variant="secondary" size="sm" icon={Wallet} onClick={() => setShowAccountModal(true)} className="text-xs" />
+          <GlassButton title="Gasto" variant="secondary" size="sm" icon={Plus} onClick={() => setShowTransactionModal(true)} className="text-xs" />
+          <GlassButton title="Transferir" variant="secondary" size="sm" icon={Repeat} onClick={() => setShowTransferModal(true)} className="text-xs" />
         </div>
       </motion.div>
 

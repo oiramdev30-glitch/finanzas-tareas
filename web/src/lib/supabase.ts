@@ -1,6 +1,20 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { config } from './config';
 
+async function safeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch (err) {
+    if (err instanceof TypeError && String(err.message).toLowerCase().includes('failed to fetch')) {
+      return new Response(JSON.stringify({ error: 'Sin conexión. Verifica tu internet.' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    throw err;
+  }
+}
+
 export const supabase: SupabaseClient = createClient(
   config.supabaseUrl,
   config.supabaseAnonKey,
@@ -9,6 +23,9 @@ export const supabase: SupabaseClient = createClient(
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
+    },
+    global: {
+      fetch: safeFetch,
     },
   },
 );
