@@ -4,8 +4,11 @@ function env(name: string, fallback = ''): string {
 }
 
 export const config = {
-  supabaseUrl: env('NEXT_PUBLIC_SUPABASE_URL', 'https://placeholder.supabase.co').replace(/\/rest\/v1\/?$/, ''),
-  supabaseAnonKey: env('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'placeholder-anon-key'),
+  supabaseUrl: env('NEXT_PUBLIC_SUPABASE_URL', 'https://qnqtfybknmiaqcuyyuqc.supabase.co').replace(
+    /\/rest\/v1\/?$/,
+    '',
+  ),
+  supabaseAnonKey: env('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'sb_publishable_WOeWQYgzQ1Ws8LZyrHQzQA_iokxyYQ9'),
 } as const;
 
 export const isSupabaseConfigured =
