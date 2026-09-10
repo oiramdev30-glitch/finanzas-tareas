@@ -10,8 +10,8 @@ export default function MonthlyTrendChart({ points }: { points: MonthPoint[] }) 
     return <p className="text-[13px] text-textSecondary">Aún no hay datos suficientes.</p>;
   }
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-end justify-between gap-2" style={{ height: 140 }}>
+    <div className="flex w-full max-w-full flex-col gap-3 overflow-hidden">
+      <div className="flex w-full max-w-full items-end justify-between gap-1 overflow-hidden" style={{ height: 140 }}>
         {points.map((p, i) => (
           <div key={p.key} className="flex flex-1 flex-col items-center gap-1">
             <div className="flex h-[110px] w-full items-end justify-center gap-1">

@@ -140,7 +140,7 @@ export default function ConfigPage() {
   };
 
   return (
-    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="flex flex-col gap-6">
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="flex flex-col gap-6 overflow-x-hidden">
       <motion.h1 variants={fadeUp} className="text-[28px] font-bold tracking-wide text-textPrimary">Ajustes</motion.h1>
 
       <motion.div variants={fadeUp}>

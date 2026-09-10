@@ -21,7 +21,7 @@ export default function SpendingChart({ slices, total }: {
   let offset = 0;
 
   return (
-    <div className="flex flex-wrap items-center gap-6">
+    <div className="flex w-full max-w-full flex-wrap items-center gap-6 overflow-hidden">
       <div className="relative h-40 w-40 shrink-0">
         <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
           <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
@@ -57,7 +57,7 @@ export default function SpendingChart({ slices, total }: {
         </div>
       </div>
 
-      <div className="flex min-w-[150px] flex-1 flex-col gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden">
         {rendered.slice(0, 6).map((slice) => (
           <div key={slice.label} className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: slice.color }} />

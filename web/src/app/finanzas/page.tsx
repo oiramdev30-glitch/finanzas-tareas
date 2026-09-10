@@ -136,7 +136,7 @@ export default function FinanzasPage() {
   };
 
   return (
-    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="flex flex-col gap-6">
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="flex flex-col gap-6 overflow-x-hidden">
       <motion.div variants={fadeUp} className="flex flex-col gap-3">
         <h1 className="text-[28px] font-bold tracking-wide text-textPrimary">Finanzas</h1>
         <div className="grid grid-cols-3 gap-2">
