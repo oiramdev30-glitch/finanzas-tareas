@@ -146,30 +146,30 @@ export default function FinanzasPage() {
         </div>
       </motion.div>
 
-      <motion.div variants={fadeUp} className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+      <motion.div variants={fadeUp} className="flex w-full max-w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex w-full items-center justify-between gap-2 sm:w-auto">
           <button
             onClick={() => setVisibleMonth((m) => shiftMonthKey(m, -1))}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white/5 text-textSecondary hover:bg-white/10"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-white/5 text-textSecondary hover:bg-white/10"
             aria-label="Mes anterior"
           >
             <ChevronLeft size={16} strokeWidth={2} />
           </button>
-          <span className="w-36 text-center text-[15px] font-semibold capitalize text-textPrimary">
+          <span className="min-w-0 flex-1 text-center text-[15px] font-semibold capitalize text-textPrimary">
             {formatMonthLabel(visibleMonth)}
           </span>
           <button
             onClick={() => setVisibleMonth((m) => shiftMonthKey(m, 1))}
             disabled={visibleMonth >= monthKey()}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white/5 text-textSecondary hover:bg-white/10 disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-white/5 text-textSecondary hover:bg-white/10 disabled:opacity-40"
             aria-label="Mes siguiente"
           >
             <ChevronRight size={16} strokeWidth={2} />
           </button>
         </div>
-        <div className="flex gap-2">
-          <GlassButton title="" variant="secondary" size="sm" icon={Download} onClick={handleExport} />
-          <GlassButton title="Categorías" variant="secondary" size="sm" icon={Tag} onClick={() => setShowManageCategoriesModal(true)} />
+        <div className="flex w-full gap-2 sm:w-auto sm:justify-end">
+          <GlassButton title="" variant="secondary" size="sm" icon={Download} onClick={handleExport} className="flex-1 sm:flex-none" />
+          <GlassButton title="Categorías" variant="secondary" size="sm" icon={Tag} onClick={() => setShowManageCategoriesModal(true)} className="flex-1 sm:flex-none" />
         </div>
       </motion.div>
 

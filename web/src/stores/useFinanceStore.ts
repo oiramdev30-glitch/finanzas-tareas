@@ -207,8 +207,13 @@ export const useFinanceStore = create<FinanceState>()((set, get) => {
         set({ accounts, categories, transactions, budgets, isLoading: false });
         await syncBudgetSpent();
       } catch (error) {
-        set({ isLoading: false, error: toErrorMessage(error) });
-        throw error;
+        const msg = toErrorMessage(error);
+        // En Pixel 8 / redes móviles el fetch puede fallar intermitente: no bloquees la UI
+        if (msg.includes('Sin conexión')) {
+          set({ isLoading: false, error: null });
+          return;
+        }
+        set({ isLoading: false, error: msg });
       }
     },
 
