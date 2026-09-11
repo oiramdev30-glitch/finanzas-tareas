@@ -168,8 +168,20 @@ export default function FinanzasPage() {
           </button>
         </div>
         <div className="flex gap-2">
-          <GlassButton title="" variant="secondary" size="sm" icon={Download} onClick={handleExport} />
-          <GlassButton title="Categorías" variant="secondary" size="sm" icon={Tag} onClick={() => setShowManageCategoriesModal(true)} />
+          <button
+            onClick={handleExport}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-textSecondary transition-colors hover:bg-white/20"
+            aria-label="Exportar datos"
+          >
+            <Download size={18} strokeWidth={2} />
+          </button>
+          <button
+            onClick={() => setShowManageCategoriesModal(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-textSecondary transition-colors hover:bg-white/20"
+            aria-label="Categorías"
+          >
+            <Tag size={18} strokeWidth={2} />
+          </button>
         </div>
       </motion.div>
 

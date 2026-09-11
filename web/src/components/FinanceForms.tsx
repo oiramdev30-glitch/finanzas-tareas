@@ -221,6 +221,7 @@ export function NewAccountModal({
   account?: Account | null;
 }) {
   const editing = !!account;
+  const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [type, setType] = useState<AccountType>('cash');
   const [currency, setCurrency] = useState<string>(() => getDefaultCurrency());
@@ -238,6 +239,7 @@ export function NewAccountModal({
 
   useEffect(() => {
     if (open) {
+      setStep(1);
       setName(account?.name ?? '');
       setType((account?.type as AccountType) ?? 'cash');
       setCurrency(account?.currency ?? getDefaultCurrency());
@@ -254,29 +256,24 @@ export function NewAccountModal({
     }
   }, [open, account]);
 
-  const handleSubmit = async () => {
-    let hasError = false;
+  const handleNext = () => {
     if (!name.trim()) {
       setNameError('Escribe un nombre para la cuenta.');
-      hasError = true;
-    } else {
-      setNameError(null);
+      return;
     }
+    setNameError(null);
     if (openingBalance.trim()) {
       const opening = Number(openingBalance);
       if (!Number.isFinite(opening) || opening < 0) {
         setOpeningError('El balance inicial no puede ser negativo.');
-        hasError = true;
-      } else {
-        setOpeningError(null);
+        return;
       }
-    } else {
-      setOpeningError(null);
     }
-    if (hasError) {
-      setError(null);
-      return;
-    }
+    setOpeningError(null);
+    setStep(2);
+  };
+
+  const handleSubmit = async () => {
     setSaving(true);
     setError(null);
     try {
@@ -316,133 +313,151 @@ export function NewAccountModal({
   return (
     <Modal open={open} onClose={onClose} title={editing ? 'Editar cuenta' : 'Nueva cuenta'}>
       <div className="flex flex-col gap-4">
-        <Field label="Nombre *">
-          <input
-            className={nameError ? inputErrorClass : inputClass}
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (nameError) setNameError(null);
-            }}
-            placeholder="Ej. Efectivo"
-          />
-          <FieldError message={nameError} />
-        </Field>
-        <Field label="Tipo">
-          <div className="flex flex-wrap gap-2">
-            {ACCOUNT_TYPES.map(({ value, label }) => (
-              <button
-                key={value}
-                onClick={() => setType(value)}
-                className={`rounded-xl border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
-                  type === value
-                    ? 'border-accent bg-accent/20 text-accent'
-                    : 'border-border bg-white/5 text-textSecondary hover:bg-white/10'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+        <div className="mb-1 flex items-center justify-center gap-2">
+          <span className={`h-2 w-2 rounded-full ${step === 1 ? 'bg-accent' : 'bg-white/20'}`} />
+          <span className={`h-2 w-2 rounded-full ${step === 2 ? 'bg-accent' : 'bg-white/20'}`} />
+        </div>
+
+        {step === 1 && (
+          <div className="flex flex-col gap-4">
+            <Field label="Nombre *">
+              <input
+                className={nameError ? inputErrorClass : inputClass}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (nameError) setNameError(null);
+                }}
+                placeholder="Ej. Efectivo"
+              />
+              <FieldError message={nameError} />
+            </Field>
+            <Field label="Tipo">
+              <div className="flex flex-wrap gap-2">
+                {ACCOUNT_TYPES.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setType(value)}
+                    className={`rounded-xl border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
+                      type === value
+                        ? 'border-accent bg-accent/20 text-accent'
+                        : 'border-border bg-white/5 text-textSecondary hover:bg-white/10'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </Field>
+            <Field label="Moneda">
+              <SelectField value={currency} onChange={setCurrency} options={CURRENCIES.map((c) => ({ value: c, label: c }))} />
+            </Field>
+            {!editing ? (
+              <Field label="Balance inicial (opcional)">
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  className={openingError ? inputErrorClass : inputClass}
+                  value={openingBalance}
+                  onChange={(e) => {
+                    setOpeningBalance(e.target.value);
+                    if (openingError) setOpeningError(null);
+                  }}
+                  placeholder="Ej. 5000.00"
+                />
+                <FieldError message={openingError} />
+              </Field>
+            ) : null}
+            <GlassButton title="Siguiente" icon={ChevronRight} onClick={handleNext} />
           </div>
-        </Field>
-        <Field label="Moneda">
-          <SelectField value={currency} onChange={setCurrency} options={CURRENCIES.map((c) => ({ value: c, label: c }))} />
-        </Field>
-        {!editing ? (
-          <Field label="Balance inicial (opcional)">
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              className={openingError ? inputErrorClass : inputClass}
-              value={openingBalance}
-              onChange={(e) => {
-                setOpeningBalance(e.target.value);
-                if (openingError) setOpeningError(null);
-              }}
-              placeholder="Ej. 5000.00"
-            />
-            <FieldError message={openingError} />
-          </Field>
-        ) : null}
-        {type === 'credit' ? (
-          <>
-            <Field label="Límite de crédito">
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                className={inputClass}
-                value={creditLimit}
-                onChange={(e) => setCreditLimit(e.target.value)}
-                placeholder="Ej. 20000"
-              />
+        )}
+
+        {step === 2 && (
+          <div className="flex flex-col gap-4">
+            {type === 'credit' ? (
+              <>
+                <Field label="Límite de crédito">
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className={inputClass}
+                    value={creditLimit}
+                    onChange={(e) => setCreditLimit(e.target.value)}
+                    placeholder="Ej. 20000"
+                  />
+                </Field>
+                <Field label="Deuda actual">
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className={inputClass}
+                    value={currentDebt}
+                    onChange={(e) => setCurrentDebt(e.target.value)}
+                    placeholder="Ej. 3500"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Día de corte (1-31)">
+                    <input
+                      type="number"
+                      min={1}
+                      max={31}
+                      className={inputClass}
+                      value={closingDay}
+                      onChange={(e) => setClosingDay(e.target.value)}
+                      placeholder="Ej. 15"
+                    />
+                  </Field>
+                  <Field label="Día de pago (1-31)">
+                    <input
+                      type="number"
+                      min={1}
+                      max={31}
+                      className={inputClass}
+                      value={dueDay}
+                      onChange={(e) => setDueDay(e.target.value)}
+                      placeholder="Ej. 5"
+                    />
+                  </Field>
+                </div>
+              </>
+            ) : null}
+            <Field label="Color">
+              <div className="flex flex-wrap gap-2">
+                {CATEGORY_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setColor(c)}
+                    aria-label={`Color ${c}`}
+                    className="flex h-8 w-8 items-center justify-center rounded-full transition-transform"
+                    style={{ backgroundColor: c }}
+                  >
+                    {color === c ? (
+                      <Check size={15} strokeWidth={3} className="text-white drop-shadow" />
+                    ) : null}
+                  </button>
+                ))}
+              </div>
             </Field>
-            <Field label="Deuda actual">
+            <label className="flex items-center gap-3 text-[14px] text-textPrimary">
               <input
-                type="number"
-                min={0}
-                step="0.01"
-                className={inputClass}
-                value={currentDebt}
-                onChange={(e) => setCurrentDebt(e.target.value)}
-                placeholder="Ej. 3500"
+                type="checkbox"
+                checked={includeInBalance}
+                onChange={(e) => setIncludeInBalance(e.target.checked)}
+                className="h-4 w-4 accent-[#8b7cf7]"
               />
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Día de corte (1-31)">
-                <input
-                  type="number"
-                  min={1}
-                  max={31}
-                  className={inputClass}
-                  value={closingDay}
-                  onChange={(e) => setClosingDay(e.target.value)}
-                  placeholder="Ej. 15"
-                />
-              </Field>
-              <Field label="Día de pago (1-31)">
-                <input
-                  type="number"
-                  min={1}
-                  max={31}
-                  className={inputClass}
-                  value={dueDay}
-                  onChange={(e) => setDueDay(e.target.value)}
-                  placeholder="Ej. 5"
-                />
-              </Field>
+              Incluir en el balance total
+            </label>
+            {error ? <p className="text-[13px] text-danger">{error}</p> : null}
+            <div className="flex gap-3">
+              <GlassButton title="Atrás" icon={ChevronLeft} variant="secondary" onClick={() => setStep(1)} />
+              <GlassButton title={editing ? 'Guardar cambios' : 'Guardar cuenta'} icon={Check} loading={saving} onClick={() => void handleSubmit()} />
             </div>
-          </>
-        ) : null}
-        <Field label="Color">
-          <div className="flex flex-wrap gap-2">
-            {CATEGORY_COLORS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setColor(c)}
-                aria-label={`Color ${c}`}
-                className="flex h-8 w-8 items-center justify-center rounded-full transition-transform"
-                style={{ backgroundColor: c }}
-              >
-                {color === c ? (
-                  <Check size={15} strokeWidth={3} className="text-white drop-shadow" />
-                ) : null}
-              </button>
-            ))}
           </div>
-        </Field>
-        <label className="flex items-center gap-3 text-[14px] text-textPrimary">
-          <input
-            type="checkbox"
-            checked={includeInBalance}
-            onChange={(e) => setIncludeInBalance(e.target.checked)}
-            className="h-4 w-4 accent-[#8b7cf7]"
-          />
-          Incluir en el balance total
-        </label>
-        {error ? <p className="text-[13px] text-danger">{error}</p> : null}
-        <GlassButton title={editing ? 'Guardar cambios' : 'Guardar cuenta'} icon={Check} loading={saving} onClick={() => void handleSubmit()} />
+        )}
       </div>
     </Modal>
   );
@@ -870,6 +885,7 @@ export function NewCategoryModal({ open, onClose }: { open: boolean; onClose: ()
 
 export function TransferModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const accounts = useFinanceStore((state) => state.accounts).filter((a) => a.archived_at === null);
+  const [step, setStep] = useState(1);
   const [fromId, setFromId] = useState('');
   const [toId, setToId] = useState('');
   const [amount, setAmount] = useState('');
@@ -882,6 +898,7 @@ export function TransferModal({ open, onClose }: { open: boolean; onClose: () =>
 
   useEffect(() => {
     if (open) {
+      setStep(1);
       setFromId(accounts[0]?.id ?? '');
       setToId(accounts[1]?.id ?? '');
       setAmount('');
@@ -893,7 +910,7 @@ export function TransferModal({ open, onClose }: { open: boolean; onClose: () =>
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSubmit = async () => {
+  const handleNext = () => {
     let hasError = false;
     if (!fromId || !toId) {
       setAccountPairError('Selecciona ambas cuentas.');
@@ -915,6 +932,11 @@ export function TransferModal({ open, onClose }: { open: boolean; onClose: () =>
       setError(null);
       return;
     }
+    setStep(2);
+  };
+
+  const handleSubmit = async () => {
+    const value = Number(amount);
     setSaving(true);
     setError(null);
     try {
@@ -937,36 +959,54 @@ export function TransferModal({ open, onClose }: { open: boolean; onClose: () =>
   return (
     <Modal open={open} onClose={onClose} title="Transferencia">
       <div className="flex flex-col gap-4">
-        <Field label="Desde">
-          <SelectField value={fromId} onChange={setFromId} options={accounts.map((a) => ({ value: a.id, label: a.name }))} />
-        </Field>
-        <Field label="Hacia">
-          <SelectField value={toId} onChange={setToId} options={accounts.map((a) => ({ value: a.id, label: a.name }))} />
-        </Field>
-        <Field label="Monto *">
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            className={amountError ? inputErrorClass : inputClass}
-            value={amount}
-            onChange={(e) => {
-              setAmount(e.target.value);
-              if (amountError) setAmountError(null);
-            }}
-            placeholder="Ej. 1000.00"
-          />
-          <FieldError message={amountError} />
-          <FieldError message={accountPairError} />
-        </Field>
-        <Field label="Fecha">
-          <DatePicker value={date} onChange={setDate} />
-        </Field>
-        <Field label="Descripción">
-          <input className={inputClass} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ej. Pago de renta" />
-        </Field>
-        {error ? <p className="text-[13px] text-danger">{error}</p> : null}
-        <GlassButton title="Transferir" icon={Repeat} loading={saving} onClick={() => void handleSubmit()} />
+        <div className="mb-1 flex items-center justify-center gap-2">
+          <span className={`h-2 w-2 rounded-full ${step === 1 ? 'bg-accent' : 'bg-white/20'}`} />
+          <span className={`h-2 w-2 rounded-full ${step === 2 ? 'bg-accent' : 'bg-white/20'}`} />
+        </div>
+
+        {step === 1 && (
+          <div className="flex flex-col gap-4">
+            <Field label="Desde">
+              <SelectField value={fromId} onChange={setFromId} options={accounts.map((a) => ({ value: a.id, label: a.name }))} />
+            </Field>
+            <Field label="Hacia">
+              <SelectField value={toId} onChange={setToId} options={accounts.map((a) => ({ value: a.id, label: a.name }))} />
+            </Field>
+            <Field label="Monto *">
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                className={amountError ? inputErrorClass : inputClass}
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  if (amountError) setAmountError(null);
+                }}
+                placeholder="Ej. 1000.00"
+              />
+              <FieldError message={amountError} />
+              <FieldError message={accountPairError} />
+            </Field>
+            <GlassButton title="Siguiente" icon={ChevronRight} onClick={handleNext} />
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="flex flex-col gap-4">
+            <Field label="Fecha">
+              <DatePicker value={date} onChange={setDate} />
+            </Field>
+            <Field label="Descripción">
+              <input className={inputClass} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ej. Pago de renta" />
+            </Field>
+            {error ? <p className="text-[13px] text-danger">{error}</p> : null}
+            <div className="flex gap-3">
+              <GlassButton title="Atrás" icon={ChevronLeft} variant="secondary" onClick={() => setStep(1)} />
+              <GlassButton title="Transferir" icon={Repeat} loading={saving} onClick={() => void handleSubmit()} />
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   );
@@ -982,6 +1022,7 @@ export function EditTransactionModal({
   transaction: AppTransaction | null;
 }) {
   const categories = useFinanceStore((state) => state.categories);
+  const [step, setStep] = useState(1);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [merchant, setMerchant] = useState('');
@@ -993,6 +1034,7 @@ export function EditTransactionModal({
 
   useEffect(() => {
     if (open && transaction) {
+      setStep(1);
       setAmount(String(transaction.amount));
       setDescription(transaction.description ?? '');
       setMerchant(transaction.merchant ?? '');
@@ -1007,14 +1049,19 @@ export function EditTransactionModal({
     transaction?.type === 'expense' ? c.type === 'expense' : c.type === 'income',
   );
 
-  const handleSubmit = async () => {
-    if (!transaction) return;
+  const handleNext = () => {
     const value = Number(amount);
     if (!Number.isFinite(value) || value <= 0) {
       setAmountError('Escribe un monto mayor a 0.');
       return;
     }
     setAmountError(null);
+    setStep(2);
+  };
+
+  const handleSubmit = async () => {
+    if (!transaction) return;
+    const value = Number(amount);
     setSaving(true);
     setError(null);
     try {
@@ -1035,45 +1082,63 @@ export function EditTransactionModal({
   return (
     <Modal open={open} onClose={onClose} title="Editar movimiento">
       <div className="flex flex-col gap-4">
-        {transaction?.is_opening_balance ? (
-          <p className="rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-[13px] text-info">
-            Este es el balance inicial de una cuenta. Puedes editar el monto para corregirlo.
-          </p>
-        ) : null}
-        <Field label="Monto *">
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            className={amountError ? inputErrorClass : inputClass}
-            value={amount}
-            onChange={(e) => {
-              setAmount(e.target.value);
-              if (amountError) setAmountError(null);
-            }}
-            placeholder="Ej. 250.00"
-          />
-          <FieldError message={amountError} />
-        </Field>
-        <Field label="Categoría">
-          <SelectField
-            value={categoryId}
-            onChange={setCategoryId}
-            placeholder="Sin categoría"
-            options={filteredCategories.map((c) => ({ value: c.id, label: c.name }))}
-          />
-        </Field>
-        <Field label="Descripción">
-          <input className={inputClass} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ej. Supermercado" />
-        </Field>
-        <Field label="Comercio">
-          <input className={inputClass} value={merchant} onChange={(e) => setMerchant(e.target.value)} placeholder="Ej. Walmart" />
-        </Field>
-        <Field label="Fecha">
-          <DatePicker value={date} onChange={setDate} />
-        </Field>
-        {error ? <p className="text-[13px] text-danger">{error}</p> : null}
-        <GlassButton title="Guardar cambios" icon={Check} loading={saving} onClick={() => void handleSubmit()} />
+        <div className="mb-1 flex items-center justify-center gap-2">
+          <span className={`h-2 w-2 rounded-full ${step === 1 ? 'bg-accent' : 'bg-white/20'}`} />
+          <span className={`h-2 w-2 rounded-full ${step === 2 ? 'bg-accent' : 'bg-white/20'}`} />
+        </div>
+
+        {step === 1 && (
+          <div className="flex flex-col gap-4">
+            {transaction?.is_opening_balance ? (
+              <p className="rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-[13px] text-info">
+                Este es el balance inicial de una cuenta. Puedes editar el monto para corregirlo.
+              </p>
+            ) : null}
+            <Field label="Monto *">
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                className={amountError ? inputErrorClass : inputClass}
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  if (amountError) setAmountError(null);
+                }}
+                placeholder="Ej. 250.00"
+              />
+              <FieldError message={amountError} />
+            </Field>
+            <Field label="Categoría">
+              <SelectField
+                value={categoryId}
+                onChange={setCategoryId}
+                placeholder="Sin categoría"
+                options={filteredCategories.map((c) => ({ value: c.id, label: c.name }))}
+              />
+            </Field>
+            <GlassButton title="Siguiente" icon={ChevronRight} onClick={handleNext} />
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="flex flex-col gap-4">
+            <Field label="Descripción">
+              <input className={inputClass} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ej. Supermercado" />
+            </Field>
+            <Field label="Comercio">
+              <input className={inputClass} value={merchant} onChange={(e) => setMerchant(e.target.value)} placeholder="Ej. Walmart" />
+            </Field>
+            <Field label="Fecha">
+              <DatePicker value={date} onChange={setDate} />
+            </Field>
+            {error ? <p className="text-[13px] text-danger">{error}</p> : null}
+            <div className="flex gap-3">
+              <GlassButton title="Atrás" icon={ChevronLeft} variant="secondary" onClick={() => setStep(1)} />
+              <GlassButton title="Guardar cambios" icon={Check} loading={saving} onClick={() => void handleSubmit()} />
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   );
