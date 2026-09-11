@@ -6,8 +6,6 @@ const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   cash: 'Efectivo',
   debit: 'Débito',
   credit: 'Crédito',
-  savings: 'Ahorro',
-  investment: 'Inversión',
 };
 
 export function monthKey(date = new Date()): string {

@@ -205,7 +205,13 @@ export default function FinanzasPage() {
         <GlassCard>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-[17px] font-semibold text-textPrimary">Gastos del mes</h2>
-            <GlassButton title="Nueva" variant="secondary" size="sm" icon={Plus} onClick={() => setShowCategoryModal(true)} />
+            <button
+              onClick={() => setShowCategoryModal(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-textSecondary transition-colors hover:bg-white/20"
+              aria-label="Nueva categoría"
+            >
+              <Plus size={18} strokeWidth={2} />
+            </button>
           </div>
           <SpendingChart slices={chartSlices} total={expenseThisMonth} />
         </GlassCard>

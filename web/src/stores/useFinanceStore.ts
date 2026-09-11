@@ -71,6 +71,10 @@ function mapAccount(row: Row): Account {
     icon: asNullableString(row.icon),
     include_in_balance: row.include_in_balance === true,
     archived_at: asNullableString(row.archived_at),
+    credit_limit: row.credit_limit !== null && row.credit_limit !== undefined ? toNumber(row.credit_limit) : null,
+    current_debt: row.current_debt !== null && row.current_debt !== undefined ? toNumber(row.current_debt) : null,
+    closing_day: typeof row.closing_day === 'number' ? row.closing_day : null,
+    due_day: typeof row.due_day === 'number' ? row.due_day : null,
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };
@@ -218,7 +222,7 @@ export const useFinanceStore = create<FinanceState>()((set, get) => {
 
     createAccount: async (input) => {
       const userId = getDeviceId();
-      const { data, error } = await supabase.from('accounts').insert({
+      const payload: Record<string, unknown> = {
         user_id: userId,
         name: input.name,
         type: input.type,
@@ -226,7 +230,14 @@ export const useFinanceStore = create<FinanceState>()((set, get) => {
         color: input.color ?? null,
         icon: input.icon ?? null,
         include_in_balance: input.include_in_balance ?? true,
-      }).select('id').single();
+      };
+      if (input.type === 'credit') {
+        if (input.credit_limit !== undefined) payload.credit_limit = input.credit_limit;
+        if (input.current_debt !== undefined) payload.current_debt = input.current_debt ?? 0;
+        if (input.closing_day !== undefined) payload.closing_day = input.closing_day;
+        if (input.due_day !== undefined) payload.due_day = input.due_day;
+      }
+      const { data, error } = await supabase.from('accounts').insert(payload).select('id').single();
       if (error) {
         const message = friendlyDbError(error, 'Ya tienes una cuenta con ese nombre y tipo.');
         set({ error: message });
@@ -263,6 +274,10 @@ export const useFinanceStore = create<FinanceState>()((set, get) => {
       if (patch.color !== undefined) payload.color = patch.color;
       if (patch.icon !== undefined) payload.icon = patch.icon;
       if (patch.include_in_balance !== undefined) payload.include_in_balance = patch.include_in_balance;
+      if (patch.credit_limit !== undefined) payload.credit_limit = patch.credit_limit;
+      if (patch.current_debt !== undefined) payload.current_debt = patch.current_debt;
+      if (patch.closing_day !== undefined) payload.closing_day = patch.closing_day;
+      if (patch.due_day !== undefined) payload.due_day = patch.due_day;
       const { error } = await supabase.from('accounts').update(payload).eq('id', id);
       if (error) {
         set({ error: error.message });
@@ -287,6 +302,12 @@ export const useFinanceStore = create<FinanceState>()((set, get) => {
 
     createTransaction: async (input) => {
       const userId = getDeviceId();
+      const account = get().accounts.find((a) => a.id === input.account_id);
+      const isCreditPayment =
+        account?.type === 'credit' &&
+        input.type === 'expense' &&
+        typeof input.description === 'string' &&
+        input.description.toLowerCase().includes('pago de tarjeta');
       const { error } = await supabase.from('transactions').insert({
         user_id: userId,
         account_id: input.account_id,
@@ -306,6 +327,14 @@ export const useFinanceStore = create<FinanceState>()((set, get) => {
       if (error) {
         set({ error: error.message });
         throw error;
+      }
+      if (isCreditPayment && account) {
+        const newDebt = Math.max(0, (account.current_debt ?? 0) - input.amount);
+        await supabase.from('accounts').update({ current_debt: newDebt }).eq('id', account.id);
+      } else if (account?.type === 'credit' && input.type === 'expense' && !isCreditPayment) {
+        const newDebt = (account.current_debt ?? 0) + input.amount;
+        const cappedDebt = account.credit_limit ? Math.min(newDebt, account.credit_limit) : newDebt;
+        await supabase.from('accounts').update({ current_debt: cappedDebt }).eq('id', account.id);
       }
       await refreshAfterTransactionMutation();
     },

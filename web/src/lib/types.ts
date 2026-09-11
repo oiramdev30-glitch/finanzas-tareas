@@ -1,4 +1,4 @@
-export type AccountType = 'cash' | 'debit' | 'credit' | 'savings' | 'investment';
+export type AccountType = 'cash' | 'debit' | 'credit';
 export type TransactionType = 'income' | 'expense' | 'transfer';
 export type TransactionStatus = 'completed' | 'pending';
 export type TransactionSource = 'manual' | 'scan';
@@ -19,6 +19,10 @@ export interface Account {
   icon: string | null;
   include_in_balance: boolean;
   archived_at: string | null;
+  credit_limit: number | null;
+  current_debt: number | null;
+  closing_day: number | null;
+  due_day: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -119,6 +123,10 @@ export interface AccountInput {
   icon?: string | null;
   include_in_balance?: boolean;
   opening_balance?: number;
+  credit_limit?: number | null;
+  current_debt?: number | null;
+  closing_day?: number | null;
+  due_day?: number | null;
 }
 
 export interface AccountPatch {
@@ -128,6 +136,10 @@ export interface AccountPatch {
   color?: string | null;
   icon?: string | null;
   include_in_balance?: boolean;
+  credit_limit?: number | null;
+  current_debt?: number | null;
+  closing_day?: number | null;
+  due_day?: number | null;
 }
 
 export interface TransactionInput {

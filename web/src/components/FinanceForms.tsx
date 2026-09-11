@@ -23,7 +23,16 @@ function Modal({ open, onClose, title, children }: {
       if (e.key === 'Escape') onClose();
     }
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    const prevPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPaddingRight;
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -43,9 +52,9 @@ function Modal({ open, onClose, title, children }: {
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 60, opacity: 0, scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-        className="glass-strong w-full max-w-md rounded-[24px] p-6 shadow-2xl ring-1 ring-white/10"
+        className="glass-strong flex w-full max-w-md max-h-[85vh] flex-col overflow-hidden rounded-[24px] shadow-2xl ring-1 ring-white/10"
       >
-        <div className="mb-5 flex items-center justify-between">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-5">
           <h2 className="text-[20px] font-bold tracking-wide text-textPrimary">{title}</h2>
           <button
             onClick={onClose}
@@ -55,7 +64,7 @@ function Modal({ open, onClose, title, children }: {
             <X size={16} strokeWidth={2} />
           </button>
         </div>
-        {children}
+        <div className="flex-1 overflow-y-auto p-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{children}</div>
       </motion.div>
     </motion.div>
   );
@@ -190,11 +199,9 @@ function SelectField({ value, onChange, options, placeholder }: {
 }
 
 const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
-  { value: 'cash', label: 'Efectivo' },
   { value: 'debit', label: 'Débito' },
   { value: 'credit', label: 'Crédito' },
-  { value: 'savings', label: 'Ahorro' },
-  { value: 'investment', label: 'Inversión' },
+  { value: 'cash', label: 'Efectivo' },
 ];
 
 const TRANSACTION_TYPES: { value: TransactionType; label: string }[] = [
@@ -219,6 +226,10 @@ export function NewAccountModal({
   const [currency, setCurrency] = useState<string>(() => getDefaultCurrency());
   const [includeInBalance, setIncludeInBalance] = useState(true);
   const [openingBalance, setOpeningBalance] = useState('');
+  const [creditLimit, setCreditLimit] = useState('');
+  const [currentDebt, setCurrentDebt] = useState('');
+  const [closingDay, setClosingDay] = useState('');
+  const [dueDay, setDueDay] = useState('');
   const [color, setColor] = useState('#8b7cf7');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -228,11 +239,15 @@ export function NewAccountModal({
   useEffect(() => {
     if (open) {
       setName(account?.name ?? '');
-      setType(account?.type ?? 'cash');
+      setType((account?.type as AccountType) ?? 'cash');
       setCurrency(account?.currency ?? getDefaultCurrency());
       setIncludeInBalance(account?.include_in_balance ?? true);
       setColor(account?.color ?? '#8b7cf7');
       setOpeningBalance('');
+      setCreditLimit(account?.credit_limit != null ? String(account.credit_limit) : '');
+      setCurrentDebt(account?.current_debt != null ? String(account.current_debt) : '');
+      setClosingDay(account?.closing_day != null ? String(account.closing_day) : '');
+      setDueDay(account?.due_day != null ? String(account.due_day) : '');
       setError(null);
       setNameError(null);
       setOpeningError(null);
@@ -272,6 +287,10 @@ export function NewAccountModal({
           currency,
           include_in_balance: includeInBalance,
           color,
+          credit_limit: type === 'credit' && creditLimit ? Number(creditLimit) : null,
+          current_debt: type === 'credit' && currentDebt ? Number(currentDebt) : null,
+          closing_day: type === 'credit' && closingDay ? Number(closingDay) : null,
+          due_day: type === 'credit' && dueDay ? Number(dueDay) : null,
         });
       } else {
         const opening = Number(openingBalance);
@@ -281,6 +300,10 @@ export function NewAccountModal({
           currency,
           include_in_balance: includeInBalance,
           opening_balance: Number.isFinite(opening) ? opening : 0,
+          credit_limit: type === 'credit' && creditLimit ? Number(creditLimit) : null,
+          current_debt: type === 'credit' && currentDebt ? Number(currentDebt) : null,
+          closing_day: type === 'credit' && closingDay ? Number(closingDay) : null,
+          due_day: type === 'credit' && dueDay ? Number(dueDay) : null,
         });
       }
       onClose();
@@ -341,6 +364,56 @@ export function NewAccountModal({
             />
             <FieldError message={openingError} />
           </Field>
+        ) : null}
+        {type === 'credit' ? (
+          <>
+            <Field label="Límite de crédito">
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                className={inputClass}
+                value={creditLimit}
+                onChange={(e) => setCreditLimit(e.target.value)}
+                placeholder="Ej. 20000"
+              />
+            </Field>
+            <Field label="Deuda actual">
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                className={inputClass}
+                value={currentDebt}
+                onChange={(e) => setCurrentDebt(e.target.value)}
+                placeholder="Ej. 3500"
+              />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Día de corte (1-31)">
+                <input
+                  type="number"
+                  min={1}
+                  max={31}
+                  className={inputClass}
+                  value={closingDay}
+                  onChange={(e) => setClosingDay(e.target.value)}
+                  placeholder="Ej. 15"
+                />
+              </Field>
+              <Field label="Día de pago (1-31)">
+                <input
+                  type="number"
+                  min={1}
+                  max={31}
+                  className={inputClass}
+                  value={dueDay}
+                  onChange={(e) => setDueDay(e.target.value)}
+                  placeholder="Ej. 5"
+                />
+              </Field>
+            </div>
+          </>
         ) : null}
         <Field label="Color">
           <div className="flex flex-wrap gap-2">
