@@ -1,7 +1,7 @@
 {
   "name": "Finanzas y Tareas",
   "short_name": "Finanzas",
-  "description": "Controla tu dinero y nunca dejes pendientes de la escuela",
+  "description": "Controla tu dinero, gastos, cuentas y recordatorios",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0c",
